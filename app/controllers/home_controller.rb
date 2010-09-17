@@ -150,7 +150,7 @@ class HomeController < ApplicationController
 
       @boletos = []
       @boleto = Brcobranca::Boleto::BancoBrasil.new(boleto_dados)
-      @boleto2 = Brcobranca::Boleto::BancoBrasil.new(boleto_dados)
+      @boleto2 = Brcobranca::Boleto::Bradesco.new(boleto_dados)
       @boletos << @boleto
       @boletos << @boleto2
 
