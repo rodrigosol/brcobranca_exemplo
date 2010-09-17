@@ -14,6 +14,9 @@ BrcobrancaExemplo::Application.routes.draw do
   # just remember to delete public/index.html.
   root :to => "home#index"
   match '/home/gerar_boleto/:banco' =>'home#gerar_boleto'
+  match '/home/boleto_hash' =>'home#boleto_hash'
+  match '/home/boleto_em_bloco' =>'home#boleto_em_bloco'
+  match '/home/multi_boleto' =>'home#multi_boleto'
 
   # See how all your routes lay out with "rake routes"
 
