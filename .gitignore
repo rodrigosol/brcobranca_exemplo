@@ -3,3 +3,6 @@ vendor/gems/**/*
 log
 log/*config/database.yml
 db/schema.rb
+.webbynode
+.pushand
+db/*.sqlite3
