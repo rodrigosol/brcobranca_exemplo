@@ -5,4 +5,5 @@ gem 'sqlite3'
 gem "rghost"
 gem "rghost_barcode"
 gem "parseline"
-gem "brcobranca", :git => "git://github.com/kivanio/brcobranca.git", :branch => "master"
+# gem "brcobranca", :git => "git://github.com/kivanio/brcobranca.git", :branch => "master"
+gem "brcobranca", '3.0.0'

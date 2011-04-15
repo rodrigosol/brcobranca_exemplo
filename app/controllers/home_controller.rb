@@ -19,7 +19,7 @@ class HomeController < ApplicationController
     when :real then Brcobranca::Boleto::Real.new
     when :bradesco then Brcobranca::Boleto::Bradesco.new
     when :unibanco then Brcobranca::Boleto::Unibanco.new
-    when :banespa then Brcobranca::Boleto::Banespa.new
+    when :caixa then Brcobranca::Boleto::Caixa.new
     end
 
     @boleto.cedente = "Kivanio Barbosa"
@@ -49,12 +49,12 @@ class HomeController < ApplicationController
       # UNIBANCO
       @boleto.convenio = "1238798"
       @boleto.numero_documento = "7777700168"
-    when :banespa
-      # BANESPA
-      @boleto.agencia = "442"
-      @boleto.numero_documento = "1234567"
-      @boleto.conta_corrente = "0403005"
-      @boleto.convenio = 40013012168
+    when :caixa
+      # CAIXA
+      @boleto.agencia = "1565"
+      @boleto.numero_documento = "123456789123456"
+      @boleto.conta_corrente = "0013877"
+      @boleto.convenio = "100000"
     else
       @boleto.convenio = "1238798"
       @boleto.numero_documento = "102008"
@@ -154,7 +154,7 @@ class HomeController < ApplicationController
       @boletos << @boleto
       @boletos << @boleto2
 
-      send_data Brcobranca::Boleto::Base.imprimir_lista(@boletos), :filename => "multi_boleto.pdf"
+      send_data Brcobranca::Boleto::Base.lote(@boletos), :filename => "multi_boleto.pdf"
     end
 
   end
