@@ -1,256 +1,498 @@
-== Welcome to Rails
+##Introdução
 
-Rails is a web-application framework that includes everything needed to create
-database-backed web applications according to the Model-View-Control pattern.
+## SDK-SBIS
 
-This pattern splits the view (also called the presentation) into "dumb"
-templates that are primarily responsible for inserting pre-built data in between
-HTML tags. The model contains the "smart" domain objects (such as Account,
-Product, Person, Post) that holds all the business logic and knows how to
-persist themselves to a database. The controller handles the incoming requests
-(such as Save New Account, Update Product, Show Post) by manipulating the model
-and directing data to the view.
-
-In Rails, the model is handled by what's called an object-relational mapping
-layer entitled Active Record. This layer allows you to present the data from
-database rows as objects and embellish these data objects with business logic
-methods. You can read more about Active Record in
-link:files/vendor/rails/activerecord/README.html.
-
-The controller and view are handled by the Action Pack, which handles both
-layers by its two parts: Action View and Action Controller. These two layers
-are bundled in a single package due to their heavy interdependence. This is
-unlike the relationship between the Active Record and Action Pack that is much
-more separate. Each of these packages can be used independently outside of
-Rails. You can read more about Action Pack in
-link:files/vendor/rails/actionpack/README.html.
+O SDK-SBIS é uma biblioteca de software que trata dos aspectos de certificação digital do SBIS.
+Essa biblioteca permite a assinatura de documentos no padrão do ICP-Brasil, bem como a extração de dados do certificado para propósito de autenticação e autorização.
 
 
-== Getting Started
+##Conceitos
 
-1. At the command prompt, create a new Rails application:
-       <tt>rails new myapp</tt> (where <tt>myapp</tt> is the application name)
+   A seguir são descritos os principais conceitos relacionados.
 
-2. Change directory to <tt>myapp</tt> and start the web server:
-       <tt>cd myapp; rails server</tt> (run with --help for options)
+#### Certificação Digital
 
-3. Go to http://localhost:3000/ and you'll see:
-       "Welcome aboard: You're riding Ruby on Rails!"
+   A _Certificação Digital_ é uma tecnologia que provê mecanismos de segurança capazes de garantir autenticidade, confidencialidade e integridade às informações eletrônicas tramitadas entre cidadãos, governo e empresas através da troca de mensagens e documentos através da internet.
 
-4. Follow the guidelines to start developing your application. You can find
-the following resources handy:
+#### Certificado
+   O _Certificado Digital_ é uma assinatura com validade jurídica que garante proteção às transações eletrônicas e outros serviços via internet, permitindo que pessoas e empresas se identifiquem e assinem digitalmente de qualquer lugar do mundo com mais segurança e agilidade. [1]
 
-* The Getting Started Guide: http://guides.rubyonrails.org/getting_started.html
-* Ruby on Rails Tutorial Book: http://www.railstutorial.org/
+##### Tipos de Certificado
+
+   Os Certificados ICP-Brasil são classificados quanto à sua aplicabilidade e quanto aos requisitos de segurança de proteção da chave privativa. Quanto à sua aplicabilidade, os certificados ICP-Brasil são classificados pelos tipos:
+
+######Tipo A - Certificado de Assinatura Digital
+   Os certificados do tipo A são os certificados digitais utilizados para a <strong>assinatura de documentos</strong>, <strong>transações eletrônicas</strong>, entre outros, tendo como meta provar a autenticidade e a autoria por parte do emissor, garantindo também, a integridade do documento.
+
+######Tipo S - Certificado de Sigilo/Confidencialidade
+
+   Os certificados do tipo S são utilizados somente para proporcionar <strong>sigilo</strong> ou <strong>criptografia de dados</strong>. São os certificados digitais utilizados para o envio e/ou armazenamento destes documentos </strong>sem expor o seu conteúdo</strong>.
+
+######Tipo T - Certificado de Tempo
+
+   Também conhecido como <strong>time-stamping</strong>, é o serviço de certificação do <strong>dia</strong> e da <strong>hora</strong> em que foi assinado um documento eletrônico, com identidade do emissor.
+
+#### Assinatura Digital
+
+   A assinatura digital consiste na criação de um código, através da utilização de uma chave privada, de modo que a pessoa ou entidade que receber uma mensagem contendo este código possa verificar se o remetente é mesmo quem diz ser e identificar qualquer mensagem que possa ter sido modificada.
+
+   A técnica de assinatura digital é uma forma eficaz de garantir a autoria de documentos eletrônicos. Em agosto de 2001, a Medida Provisória 2.200-2 de 24 de agosto do mesmo ano garantiu a validade jurídica de documentos eletrônicos e a utilização de certificados digitais para atribuir autenticidade e integridade aos documentos. Este fato tornou a assinatura digital um instrumento válido juridicamente.
+
+#### Alias
+   Alias é o identificador único de um certificado. O SDK lista todos os certificados disponíveis no computador (token, browser, arquivos, etc.) e o acesso a um certificado específico é realizado pelo Alias.
+
+#### Cadeia de Certificados
+   É a cadeia de certificados dos emissores de um determinado certificado. A cadeia é usada para verificar a revogação do certificado.
+
+#### Campos do ICP-Brasil
+   São os campos que contém dados padronizados pelo ICP-Brasil, tais como Nome, CPF/CNPJ, CRM, etc.
+
+###Core Services
+   O SDK é divido em camadas. A camada *Core Services* provê infraestrutura básica para acesso ao certificado e seus dados. O *Core Service* pode ser acessado pela interface fluente disponível no SDK.
+
+####Fluent Interface
+   É um conjunto de interfaces que permite o acesso direcionado aos recursos de um certificado.
+
+##Instalação
+
+A seguir são detalhados os passos necessários para a Instalação do SDK.
+
+####Requisitos
+- Java 1.7 ou superior
+- Maven 3 instalado no computador
+- Garanta que a variável de ambiente JAVA_HOME está configurada corretamente e apontando para a instalação do JAVA.
+
+Para utilizar o SDK em seu projeto siga os passos abaixo:
+- Clone o repositório git
+- Altere a chave de criptografia do jar no arquivo pom.xml para a chave da sua empresa
+```xml
+				<configuration>
+					<keystore>minha_chave.jks</keystore>
+					<alias>meu_alias</alias>
+					<storepass>minha_storepass</storepass>
+					<keypass>minha_keypass</keypass>
+				</configuration>
+
+```
+- Execute o comando _mvn clean install -Dmaven.test.skip=true_ para compilar o projeto
+- O arquivo compilado estará disponível no diretório _target_ 
+
+####Obtendo uma instancia do SDK
+Para obter uma instância do SDK é necessário utilizar o método _get_ da classe _SDKService_:
+```java
+SDKService.get()
+```
+####Trabalhando com certificados A1
+Para obter dados de um certificado do tipo A1 é necessário informar a localização física do arquivo:
+```java
+SDKService.get().certificate(new File("caminho/certificado.p12"))
+```		
+####Trabalhando com certificados A3
+Para obter dados de um certificado do tipo A3 basta não informar nenhum parâmetro no método *certificate*
+```java
+SDKService.get().certificate()
+```
+####Informando o PIN do certificando
+Para acessar a chave privada do certificado é necessário utilizar o método *credentials*:
+```java
+SDKService.get().certificate().credentials('PINdoCertificado')
+```
+####Ações disponíveis
+Após o SDK ter sido instanciado, a interface fornece diversas ações que podem ser executadas.
+##### Listar Certificados
+##### Obter informações de um determinado certificado
+Para obter as informações armazenadas no certificado do padrão ICP-Brasil a ação _userInfo_ deve ser utilizada.
+```java
+ICPBrasilCertificate certificate =
+   ICPBrasilSDKService.get().certificate().credentials("segredo").userInfo("alias");
+System.out.println("Nome:" + certificate.getNome());
+```
+#### Obter informações de um determinado certificado criptografadas
+O método *getEncryptedInfo* fornece todos os campos do ICP-Brasil em um JSON previamente criptografado com o algoritmo AES-128.
+```java
+String dados = 
+   ICPBrasilSDKService.get().certificate().credentials("segredo").getEncryptedInfo("alias","chave");
+System.out.println("Dados:" + dados);
+```
+#### Obter a chave privada
+O método *getPrivateKey* fornece a chave privada do certificado.
+```java
+ privateKey = 
+   ICPBrasilSDKService.get().certificate().credentials("segredo").getPrivateKey("alias");
+```
+
+#### Obter a chave pública
+O método *getPublicKey* fornece a chave pública do certificado.
+```java
+ publicKey = 
+   ICPBrasilSDKService.get().certificate().credentials("segredo").getPublicKey("alias");
+```
+
+#### Obter a cadeia de certificados
+O método *getCertificateChain* fornece a cadeia de certificados de um dado certificado.
+```java
+ certificates = 
+   ICPBrasilSDKService.get().certificate().credentials("segredo").getCertificateChain("alias");
+```
+
+#### Obter o certificado no padrão X509
+O método *getCertificate* fornece o certificado no padrão X509.
+```java
+ certificate = 
+   ICPBrasilSDKService.get().certificate().credentials("segredo").getCertificate("alias");
+```
+#### Assinar digitalmente um conteúdo
+Para assinar digitalmente um conteúdo, basta utilizar a ação *sign*
+```java
+ signed = 
+   ICPBrasilSDKService.get().certificate().credentials("segredo").sign(alias, content, attached);
+
+```
+O parâmetro attached informa se o conteúdo original deve ser anexado na assinatura.
+
+##### Validar assinatura
+Para validar um assinatura utiliza-se o metodo *validate*, informando o conteudo original e o conteudo da assinatura:
+```java
+ valid = 
+   ICPBrasilSDKService.validate(content,signed);
+```
+
+##### Validar certificado
+Para validar um certificado utiliza-se o metodo *validate*
+```java
+   ICPBrasilSDKService.get().certificate().credentials("segredo").validate(alias);
+```
+
+###Applets
+O SDK oferece dois Applets genéricos (login e assinador) que podem ser utilizados para automação do uso do SDK em projetos de arquitetura WEB.
 
 
-== Debugging Rails
+#### Login
+O Applet de login permite que um usuário escolha um certificado em uma lista. Quando o certificado é escolhido, o applet extrai os dados no padrão ICP-Brasil, converte-os para JSON e realiza a criptografia assimétrica. O retorno é uma string com os dados criptografadas que é inserida automaticamente em um campo do formulário HTML, enviado como parâmetro para o applet.
 
-Sometimes your application goes wrong. Fortunately there are a lot of tools that
-will help you debug it and get it back on the rails.
+##### Parâmetros do Applet
 
-First area to check is the application log files. Have "tail -f" commands
-running on the server.log and development.log. Rails will automatically display
-debugging and runtime information to these files. Debugging info will also be
-shown in the browser on requests from 127.0.0.1.
+| Parâmetro              | Descrição                                                      |
+| ---------------------- | -------------------------------------------------------------  |
+| sdk.saude.login.form   | Campo name do formulário que a string será retornada           |
+| sdk.saude.login.token  | Campo name do campo do formulário que a string será retornada  |
 
-You can also log your own messages directly into the log file from your code
-using the Ruby logger class from inside your controllers. Example:
+##### Exemplo
+###### Lado Cliente
+No cliente é necessário importar o arquivo .jar do SDK utilizando a tag html applet, conforme exemplo abaixo:
 
-  class WeblogController < ActionController::Base
-    def destroy
-      @weblog = Weblog.find(params[:id])
-      @weblog.destroy
-      logger.info("#{Time.now} Destroyed Weblog ID ##{@weblog.id}!")
-    end
+```html
+<html>
+<head>
+	<meta charset="UTF-8">
+</head>
+<body>
+<h2>Exemplo de Login</h2>
+
+<applet codebase="http://localhost:8080/sample-login/"
+						  code="sebrae.com.br.saude.applets.LoginApplet" 
+						  width=470 height=350 MAYSCRIPT
+	                 	  archive="sdk.jar,plugin.jar">
+						  <param name="sdk.saude.login.form" value="form"/>
+						  <param name="sdk.saude.login.token" value="token"/>
+</applet>
+
+<br>
+<p>Ao clicar em executar, os dados do certificado serão inseridos no campo de texto abaixo.<p>
+<form name="form" action="login.jsp">
+	<input type="text" size="100" name="token">
+	<input type="submit" value="Enviar dados para o servidor">
+</form>				
+</body>
+</html>
+```
+
+O atributo *codebase* define onde o arquivo .jar contendo o SDK está armazenado no servidor.
+O atributo *sdk.saude.login.form* informa ao applet para retornar o valor para um campo dentro do formulário chamado *form*.
+O atributo *sdk.saude.login.token* informa ao applet para retornar o valor para o campo chamado *token* dentro do formulário chamdo *form*.
+
+Ao clicar na ação executar do applet, se tudo correr bem, o campo token será preenchido com uma string representando os dados obtidos do certificado escolhido pelo usuário.
+
+Dica:
+> Utilize um campo do tipo hidden e faça um javascript que submeta o formulário de login automaticamente quando o valor for preenchido.
+
+###### Lado Servidor
+
+No lado servidor é necessário criar uma rotina que receba como parâmetro a string enviada pelo cliente e aplique o algorítmo AES-128 para realizar a descriptografia dos dados.
+
+Abaixo é apresentado um exemplo em java que realiza tal tarefa:
+
+```jsp
+<%@ page import="sebrae.com.br.saude.utils.*" %>
+
+
+<html>
+<head>
+	<meta charset="UTF-8">
+</head>
+<body>
+<h2>Dados do certificado</h2>
+<pre>
+   <%= CipherUtil.decrypt(request.getParameter("token"),"ThisIsASecretKey") %>
+</pre>
+</body>
+</html>
+
+```
+
+Para projetos em java, basta utilizar a classe CipherUtil do próprio SDK para realizar a descriptografia dos dados.
+Para projetos em outras liguagens os seguintes procedimentos são necessários:
+
+- Obtenha a string enviada para o servidor;
+- Utilize um algoritmo AES-128 padrão do ambiente;
+- Use como chave a mesma utilizada na criptografia.
+
+Abaixo é apresentado um exemplo em Ruby:
+
+```ruby
+require 'openssl'
+module AESCrypt
+  def AESCrypt.decrypt(encrypted_data, key, iv, cipher_type)
+    aes = OpenSSL::Cipher::Cipher.new(cipher_type)
+    aes.decrypt
+    aes.key = key
+    aes.iv = iv if iv != nil
+    aes.update(encrypted_data) + aes.final  
   end
+end
 
-The result will be a message in your log file along the lines of:
+class LoginController < Landpage::LandpageController
+  def new
+    key = "ThisIsSecret".scan(/../).inject(""){|binary,hn| binary << hn.to_i(16).chr}
+    text = params[:token].scan(/../).inject(""){|binary,hn| binary << hn.to_i(16).chr}
 
-  Mon Oct 08 14:22:29 +1000 2007 Destroyed Weblog ID #1!
-
-More information on how to use the logger is at http://www.ruby-doc.org/core/
-
-Also, Ruby documentation can be found at http://www.ruby-lang.org/. There are
-several books available online as well:
-
-* Programming Ruby: http://www.ruby-doc.org/docs/ProgrammingRuby/ (Pickaxe)
-* Learn to Program: http://pine.fm/LearnToProgram/ (a beginners guide)
-
-These two books will bring you up to speed on the Ruby language and also on
-programming in general.
-
-
-== Debugger
-
-Debugger support is available through the debugger command when you start your
-Mongrel or WEBrick server with --debugger. This means that you can break out of
-execution at any point in the code, investigate and change the model, and then,
-resume execution! You need to install ruby-debug to run the server in debugging
-mode. With gems, use <tt>sudo gem install ruby-debug</tt>. Example:
-
-  class WeblogController < ActionController::Base
-    def index
-      @posts = Post.find(:all)
-      debugger
-    end
+    decoded = AESCrypt.decrypt(text,key,nil,"AES-128-ECB")
+    hash = JSON.parse(decoded)
+    puts hash
   end
+end
+```
 
-So the controller will accept the action, run the first line, then present you
-with a IRB prompt in the server window. Here you can do things like:
+#### Assinador
+O Applet de assinatura permite fornecer infraestrutura completa para assinatura de documentos. O Applet funciona com a seguinte lógica:
 
-  >> @posts.inspect
-  => "[#<Post:0x14a6be8
-          @attributes={"title"=>nil, "body"=>nil, "id"=>"1"}>,
-       #<Post:0x14a6620
-          @attributes={"title"=>"Rails", "body"=>"Only ten..", "id"=>"2"}>]"
-  >> @posts.first.title = "hello from a debugger"
-  => "hello from a debugger"
+- Parâmetros são informados ao applet com informações de quais documentos serão assinados;
+- O applet faz o download dos documentos a serem assinados;
+- O applet assina os documentos com o certificado escolhido;
+- O applet envia os documentos assinados para o servidor.
 
-...and even better, you can examine how your runtime objects actually work:
+##### Parâmetros do Applet
 
-  >> f = @posts.first
-  => #<Post:0x13630c4 @attributes={"title"=>nil, "body"=>nil, "id"=>"1"}>
-  >> f.
-  Display all 152 possibilities? (y or n)
-
-Finally, when you're ready to resume execution, you can enter "cont".
-
-
-== Console
-
-The console is a Ruby shell, which allows you to interact with your
-application's domain model. Here you'll have all parts of the application
-configured, just like it is when the application is running. You can inspect
-domain models, change values, and save to the database. Starting the script
-without arguments will launch it in the development environment.
-
-To start the console, run <tt>rails console</tt> from the application
-directory.
-
-Options:
-
-* Passing the <tt>-s, --sandbox</tt> argument will rollback any modifications
-  made to the database.
-* Passing an environment name as an argument will load the corresponding
-  environment. Example: <tt>rails console production</tt>.
-
-To reload your controllers and models after launching the console run
-<tt>reload!</tt>
-
-More information about irb can be found at:
-link:http://www.rubycentral.com/pickaxe/irb.html
+| Parâmetro                                | Descrição                                                      |
+| ---------------------------------------- | -------------------------------------------------------------  |
+| sdk.assinador.upload_url                 | Url que será utilizada para o envio dos documentos assinados   |
+| sdk.assinador.numero_documentos          | Número de documentos que serão assinados                       |
+| sdk.assinador.autocontido                | true para anexar o documento na assinatura                     |
+| sdk.assinador.documento.X.download_url   | Url para download do documento de índice X                     |
+| sdk.assinador.documento.X.nome           | Nome do documento de índice X                                  |
+| sdk.assinador.documento.X.tamanho        | Tamanho em bytes do documento de índice X                      |
+| email                                    | Adiciona o cabeçalho X-Usuario-Email para autenticação         |
+| token                                    | Adiciona o cabeçalho X-Usuario-Token para autenticação         |
+| authenticity_token                       | Adiciona o parâmetro authenticity_token na requisição          |
 
 
-== dbconsole
+##### Exemplo
+###### Lado Cliente
+No cliente é necessário importar o arquivo .jar do SDK utilizando a tag html applet, conforme exemplo abaixo:
 
-You can go to the command line of your database directly through <tt>rails
-dbconsole</tt>. You would be connected to the database with the credentials
-defined in database.yml. Starting the script without arguments will connect you
-to the development database. Passing an argument will connect you to a different
-database, like <tt>rails dbconsole production</tt>. Currently works for MySQL,
-PostgreSQL and SQLite 3.
+```html
+<html>
+<head>
+	<meta charset="UTF-8">
+</head>
+<body>
+<h2>Exemplo de Assinatura</h2>
 
-== Description of Contents
+<applet codebase="http://localhost:8080/sample-login/"
+						  code="sebrae.com.br.saude.applets.AssinadorApplet" 
+						  width=470 height=350 MAYSCRIPT
+	                 	  archive="sdk.jar,plugin.jar">
+						  <param name="sdk.assinador.upload_url" value="http://localhost:8080/sample-login/upload"/>
+						  <param name="sdk.assinador.numero_documentos" value="2"/>
+						  <param name="sdk.assinador.autocontido" value="false"/>
+						  <param name="sdk.assinador.documento.0.nome" value="logo.png"/>
+						  <param name="sdk.assinador.documento.0.download_url" value="http://localhost:8080/sample-login/logo.png"/>
+						  <param name="sdk.assinador.documento.0.tamanho" value="25385"/>
+						  
+						  <param name="sdk.assinador.documento.1.nome" value="sdk.jar"/>
+						  <param name="sdk.assinador.documento.1.download_url" value="http://localhost:8080/sample-login/sdk.jar"/>
+						  <param name="sdk.assinador.documento.1.tamanho" value="7019262"/>
+						  
+</applet>
 
-The default directory structure of a generated Ruby on Rails application:
+<br>
+<p>Ao clicar em executar os arquivos serão baixados, assinados e enviados para a URL de upload informada.<p>
+</body>
+</html>
+```
+Ao clicar em executar os arquivos *logo.png* e *sdk.jar* serão baixados, assinados e enviados para a URL de upload informada
 
-  |-- app
-  |   |-- controllers
-  |   |-- helpers
-  |   |-- models
-  |   `-- views
-  |       `-- layouts
-  |-- config
-  |   |-- environments
-  |   |-- initializers
-  |   `-- locales
-  |-- db
-  |-- doc
-  |-- lib
-  |   `-- tasks
-  |-- log
-  |-- public
-  |   |-- images
-  |   |-- javascripts
-  |   `-- stylesheets
-  |-- script
-  |   `-- performance
-  |-- test
-  |   |-- fixtures
-  |   |-- functional
-  |   |-- integration
-  |   |-- performance
-  |   `-- unit
-  |-- tmp
-  |   |-- cache
-  |   |-- pids
-  |   |-- sessions
-  |   `-- sockets
-  `-- vendor
-      `-- plugins
+###### Lado Servidor
+No lado servidor é necessário apenas somente receber os arquivos. Abaixo é apresentado um exemplo em Java:
 
-app
-  Holds all the code that's specific to this particular application.
+```java
+import java.io.*;
+import java.util.*;
+ 
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+ 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.output.*;
 
-app/controllers
-  Holds controllers that should be named like weblogs_controller.rb for
-  automated URL mapping. All controllers should descend from
-  ApplicationController which itself descends from ActionController::Base.
+public class UploadServlet extends HttpServlet {
+   
+   private boolean isMultipart;
+   private String filePath;
+   private int maxFileSize = 50 * 1024;
+   private int maxMemSize = 4 * 1024;
+   
 
-app/models
-  Holds models that should be named like post.rb. Models descend from
-  ActiveRecord::Base by default.
+   public void init( ){
+      filePath = 
+             getServletContext().getInitParameter("file-upload"); 
+   }
+   public void doPost(HttpServletRequest request, 
+               HttpServletResponse response)
+              throws ServletException, java.io.IOException {
+	   System.out.println("Requisicao recebida!");
 
-app/views
-  Holds the template files for the view that should be named like
-  weblogs/index.html.erb for the WeblogsController#index action. All views use
-  eRuby syntax by default.
+      isMultipart = ServletFileUpload.isMultipartContent(request);
+      System.out.println(isMultipart);
+      response.setContentType("text/html");
+      java.io.PrintWriter out = response.getWriter( );
+      if( !isMultipart ){
+         out.println("<html>");
+         out.println("<head>");
+         out.println("<title>Servlet upload</title>");  
+         out.println("</head>");
+         out.println("<body>");
+         out.println("<p>No file uploaded</p>"); 
+         out.println("</body>");
+         out.println("</html>");
+         return;
+      }
+      DiskFileItemFactory factory = new DiskFileItemFactory();
+      factory.setSizeThreshold(maxMemSize);
+      factory.setRepository(new File("/tmp"));
 
-app/views/layouts
-  Holds the template files for layouts to be used with views. This models the
-  common header/footer method of wrapping views. In your views, define a layout
-  using the <tt>layout :default</tt> and create a file named default.html.erb.
-  Inside default.html.erb, call <% yield %> to render the view using this
-  layout.
+      ServletFileUpload upload = new ServletFileUpload(factory);
+      upload.setSizeMax( maxFileSize );
 
-app/helpers
-  Holds view helpers that should be named like weblogs_helper.rb. These are
-  generated for you automatically when using generators for controllers.
-  Helpers can be used to wrap functionality for your views into methods.
+      try{ 
+      List fileItems = upload.parseRequest(request);
+      System.out.println("Numero de arquivos recebidos:" + fileItems.size());
+	
+      Iterator i = fileItems.iterator();
 
-config
-  Configuration files for the Rails environment, the routing map, the database,
-  and other dependencies.
+      out.println("<html>");
+      out.println("<head>");
+      out.println("<title>Servlet upload</title>");  
+      out.println("</head>");
+      out.println("<body>");
+      while ( i.hasNext () ) 
+      {
+         FileItem fi = (FileItem)i.next();
+            String fieldName = fi.getFieldName();
+            String fileName = fi.getName();
+            String contentType = fi.getContentType();
+            boolean isInMemory = fi.isInMemory();
+            long sizeInBytes = fi.getSize();
+            
+            System.out.println("FieldName:" + fieldName);
+            System.out.println("fileName:" + fileName);
+            System.out.println("contentType:" + contentType);
+            System.out.println("isInMemory:" + isInMemory);
+            System.out.println("sizeInBytes:" + sizeInBytes);
+            fi.write( new File("/tmp/" + fieldName)) ;
+            out.println("Uploaded Filename: " + fileName + "<br>");
+        
+      }
+      out.println("</body>");
+      out.println("</html>");
+   }catch(Exception ex) {
+	   ex.printStackTrace();
+       
+   }
+   }
+   public void doGet(HttpServletRequest request, 
+                       HttpServletResponse response)
+        throws ServletException, java.io.IOException {
+        
+        throw new ServletException("GET method used with " +
+                getClass( ).getName( )+": POST method required.");
+   } 
+}
+```
 
-db
-  Contains the database schema in schema.rb. db/migrate contains all the
-  sequence of Migrations for your schema.
+#### Selecionando automaticamente o certificado
+Caso queria pular a etapa de seleção do certificado em quaisquer applets, basta informar os seguintes parâmetros:
 
-doc
-  This directory is where your application documentation will be stored when
-  generated using <tt>rake doc:app</tt>
+##### Parâmetros do Applet
 
-lib
-  Application specific libraries. Basically, any kind of custom code that
-  doesn't belong under controllers, models, or helpers. This directory is in
-  the load path.
+| Parâmetro                                | Descrição                                                      |
+| ---------------------------------------- | -------------------------------------------------------------  |
+| sdk.saude.certificate.alias              | alias do certificado a ser selecionado                         |
+| sdk.saude.certificate.type               | Tipo do certificado (A1 ou A3)                                 |
+| sdk.saude.certificate.file               | Caminho e nome do arquivo para certificados do tipo A1         |
 
-public
-  The directory available for the web server. Contains subdirectories for
-  images, stylesheets, and javascripts. Also contains the dispatchers and the
-  default HTML files. This should be set as the DOCUMENT_ROOT of your web
-  server.
 
-script
-  Helper scripts for automation and generation.
+#### Enviando informações do Applet para o Browser
+A classe DOMUtils fornece metódos para realizar a comunicação de dentro do browser com a árvore DOM do browser.
 
-test
-  Unit and functional tests along with fixtures. When using the rails generate
-  command, template test files will be generated for you and placed in this
-  directory.
+```java
+	public static void setFormFieldFromCommonAPI(final Applet applet, final String formName, final String fieldName, final String value) {
+        String result = null;
+        try {
+            @SuppressWarnings("restriction")
+			DOMService service = DOMService.getService(applet);
+            service.invokeAndWait(new DOMAction() {
+                
+                public Object run(DOMAccessor accessor) {
+                	
+                    HTMLDocument doc = (HTMLDocument) accessor.getDocument(applet);
+                    HTMLCollection forms = doc.getForms();
+                    HTMLFormElement form = (HTMLFormElement) forms.namedItem(formName);
+                    HTMLCollection elements = form.getElements();
+                    int length = elements.getLength();
+                    for (int i = 0; i < length; i++) {
+                        Node node = elements.item(i);
+                        if (node instanceof HTMLInputElement) {
+                            HTMLInputElement element = (HTMLInputElement) node;
+                            if (element.getName().equalsIgnoreCase(fieldName)) {
+                                element.setValue(value);
+                            }
+                        }
+                    }
+                    return "";
+                }
+            });
+        } catch (DOMUnsupportedException e1) {
+            result = e1.getMessage();
+            JOptionPane.showMessageDialog(null, result);            
+        } catch (DOMAccessException e2) {
+            result = e2.getMessage();
+            JOptionPane.showMessageDialog(null, result);
+        }
+    }
+```
 
-vendor
-  External libraries that the application depends on. Also includes the plugins
-  subdirectory. If the app has frozen rails, those gems also go here, under
-  vendor/rails/. This directory is in the load path.
+##### Parâmetros da Função
+
+| Parâmetro                                | Descrição                                                      |
+| ---------------------------------------- | -------------------------------------------------------------  |
+| final Applet applet                      | Applet que irá realizar a comunicação com o Browser            |
+| final String formName                    | Atributo name do formulário que será manipulado pelo applet    |
+| final String fieldName                   | Campo do formulário que será manupilado pelo applet            |
+| final String value                       | Valor que será para o campo do formulário                      |
